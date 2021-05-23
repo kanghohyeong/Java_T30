@@ -24,7 +24,7 @@ public class PlayPage extends JPanel{
 	
 	int time=0;
 	
-	PlayPage(int row, int col){
+	PlayPage(int row, int col, int life, int time_limit){
 		this.setSize(Main.SCREEN_WIDTH,Main.SCREEN_HEIGHT);
 		this.setLayout(null);
 		
@@ -37,7 +37,7 @@ public class PlayPage extends JPanel{
 		this.card_deck = new Card[row][col];
 		
 		//게임 초기화
-		game_board = new MainBoard(row,col, 10, 10);
+		game_board = new MainBoard(row,col, life, time_limit);
 		game_board.randNumber();
 		
 		game_life = new JLabel("life "+String.valueOf(game_board.getLife()));
@@ -101,7 +101,7 @@ public class PlayPage extends JPanel{
 	
 	class GamePlay extends Thread{
 //		public int game_state=0; //0 초기/ 1 카드선택1/ 2 카드선택2/
-		int limit_time = game_board.getTimeLimit();
+
 		
 		public void run() {
 			//카드 댁 초기화
@@ -120,16 +120,16 @@ public class PlayPage extends JPanel{
 			// 모든 카드 비공개
 			secretAllCard();
 			//게임 시작
-			game_time.setText("Time "+ this.limit_time);
+			game_time.setText("Time "+ game_board.getTimeLimit());
 			ActionListener game_time_checker = new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					limit_time -= 1;
-					game_time.setText("Time "+ limit_time);
+					game_board.setTimeLimit(game_board.getTimeLimit()-1);
+					game_time.setText("Time "+ game_board.getTimeLimit());
 				}
 			};
 			Timer game_timer = new Timer(1000, game_time_checker);
 			game_timer.start();
-			while(!game_board.isFinish(limit_time)) {
+			while(!game_board.isFinish()) {
 				if(game_state == 0) {
 					printCardDeck();
 				}

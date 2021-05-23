@@ -1,7 +1,6 @@
 package cardgame;
 
 import java.util.Random;
-import java.util.Scanner;
 
 public class MainBoard {
 	int [] arr;
@@ -49,9 +48,9 @@ public class MainBoard {
 			}
 		}
 	}
-	public boolean isFinish(int time) {
+	public boolean isFinish() {
 //		boolean check = true;
-		if (life <= 0 || time <= 0) {
+		if (life <= 0 || time_limit <= 0) {
 			System.out.println("Dead");
 			this.result = false;
 			return true;
@@ -92,5 +91,8 @@ public class MainBoard {
 	}
 	public boolean getResult() {
 		return this.result;
+	}
+	public void setTimeLimit(int time) {
+		this.time_limit = time;
 	}
 }
