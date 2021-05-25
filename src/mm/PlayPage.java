@@ -2,64 +2,109 @@ package mm;
 
 import cardgame.*;
 
+import java.awt.BorderLayout;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.LinkedList;
+import java.util.Queue;
 
 
 public class PlayPage extends JPanel{
 	
+	private static Image playpage_backgound = new ImageIcon(Main.class.getResource("/Image/playpage.png")).getImage();
+	
 	MainBoard game_board;
-	JPanel board_panel = new JPanel();
+	static JPanel board_panel = new JPanel();
+	static JLabel background_panel;
 	JLabel game_life;
 	JLabel game_time;
-	int card_row;
-	int card_col;
+	static int card_row;
+	static int card_col;
 	Card[][] card_deck;
 	Card[][] secret_deck;
-	public static final int GAME_SCREEN_WIDTH = 1000;
-	public static final int GAME_SCREEN_HEIGHT = 500;
-	public static int game_state = 0; //0 초기/ 1 카드선택1/ 2 카드선택2/
-	public static int[] selected_card_tmp1 = new int[2]; //카드 선택 버퍼
-	public static int[] selected_card_tmp2 = new int[2]; //카드 선택 버퍼
+	public static final int GAME_SCREEN_WIDTH = 900;
+	public static final int GAME_SCREEN_HEIGHT = 600;
+	public static volatile int game_state = 0; //0 초기/ 1 카드선택1/ 2 카드선택2/
+	public static Queue<int[]> selected_card_queue = new LinkedList<>(); //카드선택 큐
+	public static Timer refresh_timer;
 	
 	int time=0;
 	
 	PlayPage(int row, int col, int life, int time_limit){
 		this.setSize(Main.SCREEN_WIDTH,Main.SCREEN_HEIGHT);
+		this.setOpaque(false);
 		this.setLayout(null);
 		
-		board_panel.setBounds(100, 100, GAME_SCREEN_WIDTH, GAME_SCREEN_HEIGHT);
+		background_panel = new JLabel() {
+			public void paintComponent(Graphics g) {
+				g.drawImage(PlayPage.playpage_backgound,0,0,null);
+				setOpaque(false);
+				super.paintComponent(g);
+			}
+//			public void paint(Graphics g) {
+//				g.drawImage(PlayPage.playpage_backgound,0,0,null);
+//			}
+		};
+		background_panel.setBounds(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
+		this.add(background_panel);
+		
+		board_panel.setBounds(300, 60, GAME_SCREEN_WIDTH, GAME_SCREEN_HEIGHT);
 		board_panel.setLayout(null);
+		board_panel.setOpaque(false);
+//		board_panel.setLayout(new GridLayout(row,col));
 		this.add(board_panel);
 		
 		this.card_row = row;
 		this.card_col = col;
 		this.card_deck = new Card[row][col];
 		
+		
+		
 		//게임 초기화
 		game_board = new MainBoard(row,col, life, time_limit);
 		game_board.randNumber();
 		
 		game_life = new JLabel("life "+String.valueOf(game_board.getLife()));
-		game_life.setBounds(100, 5, 100, 50);
+		game_life.setBounds(100, 100, 100, 50);
 		this.add(game_life);
 		
 		game_time = new JLabel();
-		game_time.setBounds(300, 5, 100, 50);
+		game_time.setBounds(100, 200, 100, 50);
 		this.add(game_time);
+		
+		this.setComponentZOrder(background_panel, 3);
 
 		//게임 시작
 		new GamePlay().start();
 		
 		
+		ActionListener refresh_game = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Main.main_frame.revalidate();
+				Main.main_frame.repaint();
+//				System.out.println(time);
+			}
+		};
+		refresh_timer = new Timer(100, refresh_game );
+		refresh_timer.start();
+		
 		
 	}
+	
+//	public void paint(Graphics g) {
+//		g.drawImage(playpage_backgound, 0,0, null);
+//		paintComponents(g);
+//	}
 	
 	void initCardDeck(int[][] card) {
 		for(int i = 0; i < this.card_row; i++) {
 			for(int j = 0; j < this.card_col; j++) {
 				this.card_deck[i][j] = new Card(card[i][j], i, j);
-				this.card_deck[i][j].setBounds(i*GAME_SCREEN_WIDTH/(this.card_row+1),j*GAME_SCREEN_HEIGHT/(this.card_col+1) ,GAME_SCREEN_WIDTH/(this.card_row+1) , GAME_SCREEN_HEIGHT/(this.card_col+1));
+				this.card_deck[i][j].setBounds(j*GAME_SCREEN_WIDTH/(this.card_col),i*GAME_SCREEN_HEIGHT/(this.card_row) ,GAME_SCREEN_WIDTH/(this.card_col) , GAME_SCREEN_HEIGHT/(this.card_row));
+//				this.card_deck[i][j].setBounds(j*GAME_SCREEN_WIDTH/(this.card_col),i*GAME_SCREEN_HEIGHT/(this.card_row) ,GAME_SCREEN_HEIGHT/(this.card_row)*2/3 , GAME_SCREEN_HEIGHT/(this.card_row));
 				board_panel.add(this.card_deck[i][j]);
 			}
 		}	
@@ -80,42 +125,48 @@ public class PlayPage extends JPanel{
 				
 			}
 		}	
-
-		
+	}
+	void secretCard(int row, int col ) {
+		this.card_deck[row][col].setState(0);
+		this.card_deck[row][col].setCardBack();
 	}
 	
 	void secretAllCard() {
 		for(int i = 0; i < this.card_row; i++) {
 			for(int j = 0; j < this.card_col; j++) {
 				if(this.card_deck[i][j].getState() != 2) { // 사라진 카드 아니면 
-					this.card_deck[i][j].setState(0);
+					secretCard(i,j);
 				}
 			}
 		}	
 	}
 	
+	
 	void discardCard(int row, int col) {
 		this.card_deck[row][col].setState(2);
 		board_panel.remove(this.card_deck[row][col]);
+//		this.card_deck[row][col].setVisible(false);
 	}
 	
 	class GamePlay extends Thread{
-//		public int game_state=0; //0 초기/ 1 카드선택1/ 2 카드선택2/
-
 		
 		public void run() {
 			//카드 댁 초기화
 			initCardDeck(game_board.getCard());
 			//일정 시간동안 카드 공개
-			printCardDeck();
-			float cur_time = Main.time;
-			while(true) {
-				if(cur_time+2 < Main.time) {
-					break;
-				}
-				else {
-					System.out.println(Main.time);
-				}
+//			float cur_time = Main.time;
+//			while(true) {
+//				if(cur_time+2 < Main.time) {
+//					break;
+//				}
+//				else {
+//					System.out.println(Main.time);
+//				}
+//			}
+			try {
+				this.sleep(2000);
+			} catch(InterruptedException e) {
+				e.printStackTrace();
 			}
 			// 모든 카드 비공개
 			secretAllCard();
@@ -130,41 +181,44 @@ public class PlayPage extends JPanel{
 			Timer game_timer = new Timer(1000, game_time_checker);
 			game_timer.start();
 			while(!game_board.isFinish()) {
-				if(game_state == 0) {
-					printCardDeck();
-				}
-				else if(game_state == 1) {
-					game_board.selectCard(selected_card_tmp1[0], selected_card_tmp1[1]);
-					printCardDeck();
-				}
-				else if(game_state == 2) {
-					printCardDeck();
-					cur_time = Main.time;
-					while(true) {
-						if(cur_time+1 < Main.time) {
-							break;
+
+				if(game_state == 2) {
+					new Thread() {
+						public void run() {
+							try {
+								this.sleep(1000);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+							
+							synchronized(this) {
+								int[] first_card = selected_card_queue.poll();
+								int[] second_card = selected_card_queue.poll();
+								game_board.selectCard(first_card[0], first_card[1]);
+								game_board.selectCard(second_card[0], second_card[1]);
+								if(game_board.checkOpenCard(first_card[0], first_card[1],second_card[0], second_card[1])) {
+									discardCard(first_card[0], first_card[1]);
+									discardCard(second_card[0], second_card[1]);
+								}
+								else {
+									secretCard(first_card[0], first_card[1]);
+									secretCard(second_card[0], second_card[1]);
+									game_life.setText("life "+String.valueOf(game_board.getLife()));
+								}
+							}
+							
+							
 						}
-						else {
-							System.out.println(Main.time);
-						}
-					}
-					game_board.selectCard(selected_card_tmp2[0], selected_card_tmp2[1]);
-					if(game_board.checkOpenCard(selected_card_tmp1[0], selected_card_tmp1[1],selected_card_tmp2[0], selected_card_tmp2[1])) {
-						discardCard(selected_card_tmp2[0], selected_card_tmp2[1]);
-						discardCard(selected_card_tmp1[0], selected_card_tmp1[1]);
-					}
-					else {
-						secretAllCard();
-						game_life.setText("life "+String.valueOf(game_board.getLife()));
-					}
+					}.start();
 					game_state = 0;
-					
 				}
-//				printCardDeck();
 			}
 			game_timer.stop();
+			refresh_timer.stop();
+			
 			Main.main_frame.getContentPane().removeAll();
 			Main.main_frame.getContentPane().add(new EndingPage(game_board.getResult()));
+			Main.main_frame.repaint();
 		}
 	}
 
@@ -173,17 +227,39 @@ public class PlayPage extends JPanel{
 }
 
 class Card extends JButton{
+	private ImageIcon card_back_image = new ImageIcon(Main.class.getResource("/Image/card_deck_1/back.png"));
+	private ImageIcon card_front_image;
+	
 	int value;
 	int row;
 	int col;
 	int state; //0 secret 1 show 2 discard 
+	
 	
 	Card(int value, int row, int col){
 		this.value = value;
 		this.state = 1;
 		this.row = row;
 		this.col = col;
+		
+		card_front_image = new ImageIcon(Main.class.getResource("/Image/card_deck_1/"+String.valueOf(value)+".jpg"));
+		
 		this.addMouseListener(new CardMouseEv());
+		this.setIcon(card_front_image);
+//		Image card_back_origin = card_back_image.getImage();
+//		Image card_back_resize = card_back_origin.getScaledInstance(PlayPage.GAME_SCREEN_WIDTH/PlayPage.card_col, PlayPage.GAME_SCREEN_HEIGHT/PlayPage.card_row, Image.SCALE_SMOOTH);
+//		
+//		this.setIcon(new ImageIcon(card_back_resize));
+//		this.setContentAreaFilled(true);
+//		this.setBorderPainted(false);
+	}
+	
+	void setCardBack() {
+		this.setIcon(card_back_image);
+	}
+	
+	void setCardFront() {
+		this.setIcon(card_front_image);
 	}
 	
 	int getValue() {
@@ -198,20 +274,23 @@ class Card extends JButton{
 		return this.state;
 	}
 	
+
 	
 	class CardMouseEv implements MouseListener{
 		public void mouseClicked(MouseEvent e) {
+//			System.out.println("click");
 			Card cur_button = (Card)e.getSource();
 			if(cur_button.getState() !=1) {
+				cur_button.setIcon(card_front_image);
 				cur_button.setState(1);
 				PlayPage.game_state++;
 				if(PlayPage.game_state == 1) {
-					PlayPage.selected_card_tmp1[0] = cur_button.row;
-					PlayPage.selected_card_tmp1[1] = cur_button.col;
+					int[] cur_card = {cur_button.row, cur_button.col};
+					PlayPage.selected_card_queue.add(cur_card);
 				}
 				else if(PlayPage.game_state == 2) {
-					PlayPage.selected_card_tmp2[0] = cur_button.row;
-					PlayPage.selected_card_tmp2[1] = cur_button.col;
+					int[] cur_card = {cur_button.row, cur_button.col};
+					PlayPage.selected_card_queue.add(cur_card);
 				}
 				
 				

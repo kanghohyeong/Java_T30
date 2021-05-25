@@ -31,6 +31,7 @@ public class EndingPage extends JPanel{
 		public void actionPerformed(ActionEvent e) {
 			Main.main_frame.getContentPane().removeAll();
 			Main.main_frame.getContentPane().add(new HomePage());
+			Main.main_frame.repaint();
 		}
 		
 	}

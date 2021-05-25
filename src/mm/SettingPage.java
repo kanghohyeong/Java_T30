@@ -53,6 +53,7 @@ public class SettingPage extends JPanel{
 			
 			Main.main_frame.getContentPane().removeAll();
 			Main.main_frame.getContentPane().add(new PlayPage(card_row, card_col,game_life,game_time_limit));
+			Main.main_frame.repaint();
 		}
 		
 	}

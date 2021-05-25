@@ -18,17 +18,20 @@ public class Main {
 		// TODO Auto-generated method stub
 		HomePage home_page = new HomePage();
 		main_frame.add(home_page);
+		main_frame.repaint();
 		
 		time = 0;
 		ActionListener refresh_game = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				time += (float)REFRESH_TIME/1000;
-				main_frame.repaint();
+//				main_frame.repaint();
 //				System.out.println(time);
 			}
 		};
 		game_timer = new Timer(REFRESH_TIME, refresh_game );
 		game_timer.start();
+		
+		
 		
 		
 		
