@@ -8,10 +8,11 @@ public class EasyBoard {
 	int [][]card;
 	int [][]secret;
 	int life = 10;
+	int hint = 2;
 	public EasyBoard() {
-		arr=new int[12];
-		card=new int[3][4];
-		secret=new int[3][4];
+		arr=new int[16];
+		card=new int[4][4];
+		secret=new int[4][4];
 	}
 	public void randNumber()
 	{
@@ -20,7 +21,7 @@ public class EasyBoard {
 		Random rand=new Random();
 		for(int i=0;i<arr.length;i++)
 		{
-			arr[i]=rand.nextInt(6)+1;
+			arr[i]=rand.nextInt(8)+1;
 			for(int x=0;x<i;x++)
 			{
 				if(arr[i]==arr[x])
@@ -35,7 +36,7 @@ public class EasyBoard {
 			
 			check=0;
 		}
-		for(int i=0;i<3;i++) {
+		for(int i=0;i<4;i++) {
 			for (int j=0;j<4;j++) {
 				card[i][j] = arr[k++];
 			}
@@ -48,6 +49,10 @@ public class EasyBoard {
 		
 		System.out.printf("Select Card: ");
 		ans = scan.nextLine();
+		if(ans.contentEquals("hint")) {
+			Hint();
+			return;
+		}
 		int y = (ans.charAt(1)-'0');
 		int x = ans.charAt(0)-'a';
 		while(secret[y][x] != 0) {
@@ -89,7 +94,7 @@ public class EasyBoard {
 	public void printBoard() {
 		System.out.printf("    a  b  c  d\n");
 		 
-		for(int i = 0; i < 3; i++) {
+		for(int i = 0; i < 4; i++) {
 			System.out.printf(i + " ");
 			for (int j = 0; j < 4; j++) {
 //				System.out.print("*  ");
@@ -100,11 +105,13 @@ public class EasyBoard {
 		}
 		System.out.printf("life: "+life);
 		System.out.printf("\n");
+		System.out.printf("hint: "+hint);
+		System.out.printf("\n");
 	}
 	public void printSecret() {
 		System.out.printf("    a  b  c  d\n");
 		 
-		for(int i = 0; i < 3; i++) {
+		for(int i = 0; i < 4; i++) {
 			System.out.printf(i + " ");
 			for (int j = 0; j < 4; j++) {
 //				System.out.print("*  ");
@@ -113,15 +120,15 @@ public class EasyBoard {
 			System.out.printf("\n");
 			
 		}
-		System.out.printf("life: "+life);
+		System.out.printf("hint: "+hint);
 		System.out.printf("\n");
 	}
 	
 	public boolean isFinish() {
 		boolean check = true;
-		for(int i=0; i<3;i++) {
+		for(int i=0; i<4;i++) {
 			for(int j=0; j<4;j++) {
-				if(secret[i][j] == 0) check = false; //0ÀÌ ÇÏ³ª¶óµµ ÀÖÀ¸¸é ¾È³¡³¿
+				if(secret[i][j] == 0) check = false; //0ì´ í•˜ë‚˜ë¼ë„ ìˆìœ¼ë©´ ì•ˆëëƒ„
 			}
 		}
 		if (life <= 0) {
@@ -132,7 +139,34 @@ public class EasyBoard {
 		return check;
 	}
 	
-	
+	public void Hint() {
+		Scanner scan = new Scanner(System.in);
+		String ans;
+		int y2 = 0,x2 =0;
+		System.out.printf("Select Card: ");
+		ans = scan.nextLine();
+		int y = (ans.charAt(1)-'0');
+		int x = ans.charAt(0)-'a';
+		while(secret[y][x] != 0) {
+			System.out.println("card is already open");
+			System.out.print("Select Card: ");
+			ans = scan.nextLine();
+			y = (ans.charAt(1)-'0');
+			x = ans.charAt(0)-'a';
+		}
+		secret[y][x] = card[y][x];
+		
+		for(int i=0; i<4;i++) {
+			for(int j=0; j<4;j++) {
+				if(!(i==y && j==x) && card[y][x] == card[i][j]) {
+					y2=i;
+					x2=j;
+				}
+			}
+		}
+		secret[y2][x2] = card[y2][x2];
+		hint--;
+	}
 	
 	
 	

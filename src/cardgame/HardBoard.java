@@ -8,10 +8,11 @@ public class HardBoard {
 	int [][]card;
 	int [][]secret;
 	int life = 30;
+	int hint = 5;
 	public HardBoard() {
-		arr=new int[30];
-		card=new int[5][6];
-		secret=new int[5][6];
+		arr=new int[64];
+		card=new int[8][8];
+		secret=new int[8][8];
 	}
 	public void randNumber()
 	{
@@ -20,7 +21,7 @@ public class HardBoard {
 		Random rand=new Random();
 		for(int i=0;i<arr.length;i++)
 		{
-			arr[i]=rand.nextInt(15)+1;
+			arr[i]=rand.nextInt(32)+1;
 			for(int x=0;x<i;x++)
 			{
 				if(arr[i]==arr[x])
@@ -35,8 +36,8 @@ public class HardBoard {
 			
 			check=0;
 		}
-		for(int i=0;i<5;i++) {
-			for (int j=0;j<6;j++) {
+		for(int i=0;i<8;i++) {
+			for (int j=0;j<8;j++) {
 				card[i][j] = arr[k++];
 			}
 		}
@@ -50,6 +51,10 @@ public class HardBoard {
 		ans = scan.nextLine();
 		int y = (ans.charAt(1)-'0');
 		int x = ans.charAt(0)-'a';
+		if(ans.contentEquals("hint")) {
+			Hint();
+			return;
+		}
 		while(secret[y][x] != 0) {
 			System.out.println("card is already open");
 			System.out.print("Select Card: ");
@@ -87,11 +92,11 @@ public class HardBoard {
 	
 	
 	public void printBoard() {
-		System.out.printf("    a  b  c  d  e  f\n");
+		System.out.printf("    a  b  c  d  e  f  g  h\n");
 		 
-		for(int i = 0; i < 5; i++) {
+		for(int i = 0; i < 8; i++) {
 			System.out.printf(i + " ");
-			for (int j = 0; j < 6; j++) {
+			for (int j = 0; j < 8; j++) {
 //				System.out.print("*  ");
 				System.out.printf("%3d",card[i][j]);
 			}
@@ -99,13 +104,15 @@ public class HardBoard {
 		}
 		System.out.printf("life: "+life);
 		System.out.printf("\n");
+		System.out.printf("hint: "+hint);
+		System.out.printf("\n");
 	}
 	public void printSecret() {
-		System.out.printf("    a  b  c  d  e  f\n");
+		System.out.printf("    a  b  c  d  e  f  g  h\n");
 		 
-		for(int i = 0; i < 5; i++) {
+		for(int i = 0; i < 8; i++) {
 			System.out.printf(i + " ");
-			for (int j = 0; j < 6; j++) {
+			for (int j = 0; j < 8; j++) {
 //				System.out.print("*  ");
 				System.out.printf("%3d",secret[i][j]);
 			}
@@ -113,12 +120,14 @@ public class HardBoard {
 		}
 		System.out.printf("life: "+life);
 		System.out.printf("\n");
+		System.out.printf("hint: "+hint);
+		System.out.printf("\n");
 	}
 	
 	public boolean isFinish() {
 		boolean check = true;
-		for(int i=0; i<5;i++) {
-			for(int j=0; j<6;j++) {
+		for(int i=0; i<8;i++) {
+			for(int j=0; j<8;j++) {
 				if(secret[i][j] == 0) check = false;
 			}
 		}
@@ -129,4 +138,33 @@ public class HardBoard {
 		}
 		return check;
 	}
+	public void Hint() {
+		Scanner scan = new Scanner(System.in);
+		String ans;
+		int y2 = 0,x2 =0;
+		System.out.printf("Select Card: ");
+		ans = scan.nextLine();
+		int y = (ans.charAt(1)-'0');
+		int x = ans.charAt(0)-'a';
+		while(secret[y][x] != 0) {
+			System.out.println("card is already open");
+			System.out.print("Select Card: ");
+			ans = scan.nextLine();
+			y = (ans.charAt(1)-'0');
+			x = ans.charAt(0)-'a';
+		}
+		secret[y][x] = card[y][x];
+		
+		for(int i=0; i<8;i++) {
+			for(int j=0; j<8;j++) {
+				if(!(i==y && j==x) && card[y][x] == card[i][j]) {
+					y2=i;
+					x2=j;
+				}
+			}
+		}
+		secret[y2][x2] = card[y2][x2];
+		hint--;
+	}
+	
 }
