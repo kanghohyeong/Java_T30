@@ -166,4 +166,5 @@ public class HardBoard {
 		secret[y2][x2] = card[y2][x2];
 		hint--;
 	}
+	
 }
