@@ -14,7 +14,7 @@ import java.util.Queue;
 
 public class PlayPage extends JPanel{
 	
-	private static Image playpage_backgound = new ImageIcon(Main.class.getResource("/Image/playpage.png")).getImage();
+	private static Image playpage_backgound = new ImageIcon("./Image/playpage.png").getImage();
 	
 	MainBoard game_board;
 	static JPanel board_panel = new JPanel();
@@ -77,6 +77,9 @@ public class PlayPage extends JPanel{
 		
 		this.setComponentZOrder(background_panel, 3);
 
+		//ㅇ음악
+		Main.background_music.changeMusic("action_01", true);
+		
 		//게임 시작
 		new GamePlay().start();
 		
@@ -197,10 +200,14 @@ public class PlayPage extends JPanel{
 								game_board.selectCard(first_card[0], first_card[1]);
 								game_board.selectCard(second_card[0], second_card[1]);
 								if(game_board.checkOpenCard(first_card[0], first_card[1],second_card[0], second_card[1])) {
+									Music correct_sound = new Music("correct", false);
+									correct_sound.start();
 									discardCard(first_card[0], first_card[1]);
 									discardCard(second_card[0], second_card[1]);
 								}
 								else {
+									Music wrong_sound = new Music("wrong",false);
+									wrong_sound.start();
 									secretCard(first_card[0], first_card[1]);
 									secretCard(second_card[0], second_card[1]);
 									game_life.setText("life "+String.valueOf(game_board.getLife()));
@@ -227,13 +234,13 @@ public class PlayPage extends JPanel{
 }
 
 class Card extends JButton{
-	private ImageIcon card_back_image = new ImageIcon(Main.class.getResource("/Image/card_deck_1/back.png"));
+	private ImageIcon card_back_image = new ImageIcon("./Image/card_deck_1/back.png");
 	private ImageIcon card_front_image;
-	
 	int value;
 	int row;
 	int col;
 	int state; //0 secret 1 show 2 discard 
+
 	
 	
 	Card(int value, int row, int col){
@@ -242,9 +249,11 @@ class Card extends JButton{
 		this.row = row;
 		this.col = col;
 		
-		card_front_image = new ImageIcon(Main.class.getResource("/Image/card_deck_1/"+String.valueOf(value)+".jpg"));
+		this.setContentAreaFilled(false);
+		card_front_image = new ImageIcon("./Image/card_deck_1/("+String.valueOf(value)+").jpg");
 		
-		this.addMouseListener(new CardMouseEv());
+//		this.addMouseListener(new CardMouseEv());
+		this.addActionListener(new CardActionEv());
 		this.setIcon(card_front_image);
 //		Image card_back_origin = card_back_image.getImage();
 //		Image card_back_resize = card_back_origin.getScaledInstance(PlayPage.GAME_SCREEN_WIDTH/PlayPage.card_col, PlayPage.GAME_SCREEN_HEIGHT/PlayPage.card_row, Image.SCALE_SMOOTH);
@@ -275,12 +284,15 @@ class Card extends JButton{
 	}
 	
 
-	
-	class CardMouseEv implements MouseListener{
-		public void mouseClicked(MouseEvent e) {
-//			System.out.println("click");
+	class CardActionEv implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
 			Card cur_button = (Card)e.getSource();
 			if(cur_button.getState() !=1) {
+				Music click_sound = new Music("click",false);
+				click_sound.start();
 				cur_button.setIcon(card_front_image);
 				cur_button.setState(1);
 				PlayPage.game_state++;
@@ -292,9 +304,13 @@ class Card extends JButton{
 					int[] cur_card = {cur_button.row, cur_button.col};
 					PlayPage.selected_card_queue.add(cur_card);
 				}
-				
-				
 			}
+		
+		}
+	}
+	class CardMouseEv implements MouseListener{
+		public void mouseClicked(MouseEvent e) {
+
 		}
 
 		@Override

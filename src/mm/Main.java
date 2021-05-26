@@ -12,6 +12,7 @@ public class Main {
 	public static Timer game_timer;
 	public static float time;
 	public static final int REFRESH_TIME = 50;
+	public static Music background_music;
 	
 
 	public static void main(String[] args) throws InterruptedException {
@@ -31,6 +32,8 @@ public class Main {
 		game_timer = new Timer(REFRESH_TIME, refresh_game );
 		game_timer.start();
 		
+		background_music = new Music("silence_01", true);
+		background_music.start();
 		
 		
 		
