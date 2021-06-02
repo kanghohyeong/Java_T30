@@ -61,7 +61,8 @@ public class HomePage extends JPanel{
 			Music click_sound = new Music("click",false);
 			click_sound.start();
 			Main.main_frame.getContentPane().removeAll();
-			Main.main_frame.getContentPane().add(new SettingPage());
+//			Main.main_frame.getContentPane().add(new SettingPage());
+			Main.main_frame.getContentPane().add(new ModePage());
 			Main.main_frame.repaint();
 		}
 		

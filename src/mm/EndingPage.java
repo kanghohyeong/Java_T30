@@ -2,6 +2,7 @@ package mm;
 
 import java.awt.event.*;
 import javax.swing.*;
+import gamesocket.EchoClient;
 
 public class EndingPage extends JPanel{
 	JLabel label_result = new JLabel();
@@ -24,6 +25,14 @@ public class EndingPage extends JPanel{
 		
 		this.add(label_result);
 		this.add(home_button);
+		
+		EchoClient ec = new EchoClient();
+		int client_state = ec.getConnectionState();
+		if(client_state == -1) {
+			System.out.println("no server connection");
+		} else if(client_state == 2) {
+			System.out.println(ec.getResponseMessage());
+		}
 		
 	}
 	

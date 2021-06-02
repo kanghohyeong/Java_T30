@@ -3,6 +3,8 @@ package mm;
 import cardgame.*;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -68,11 +70,16 @@ public class PlayPage extends JPanel{
 		game_board.randNumber();
 		
 		game_life = new JLabel("life "+String.valueOf(game_board.getLife()));
-		game_life.setBounds(100, 100, 100, 50);
+		game_life.setBounds(100, 100, 150, 50);
+		Font status_font = new Font("맑은 고딕", Font.ITALIC, 30);
+		game_life.setFont(status_font);
+		game_life.setForeground(Color.RED);
 		this.add(game_life);
 		
 		game_time = new JLabel();
-		game_time.setBounds(100, 200, 100, 50);
+		game_time.setBounds(100, 200, 150, 50);
+		game_time.setFont(status_font);
+		game_time.setForeground(Color.RED);
 		this.add(game_time);
 		
 		this.setComponentZOrder(background_panel, 3);
@@ -151,6 +158,16 @@ public class PlayPage extends JPanel{
 //		this.card_deck[row][col].setVisible(false);
 	}
 	
+	void discardAllCard() {
+		for(int i = 0; i < this.card_row; i++) {
+			for(int j = 0; j < this.card_col; j++) {
+				if(this.card_deck[i][j].getState() != 2) { // 사라진 카드 아니면 
+					discardCard(i,j);
+				}
+			}
+		}	
+	}
+	
 	class GamePlay extends Thread{
 		
 		public void run() {
@@ -222,6 +239,7 @@ public class PlayPage extends JPanel{
 			}
 			game_timer.stop();
 			refresh_timer.stop();
+			discardAllCard();
 			
 			Main.main_frame.getContentPane().removeAll();
 			Main.main_frame.getContentPane().add(new EndingPage(game_board.getResult()));
@@ -234,14 +252,18 @@ public class PlayPage extends JPanel{
 }
 
 class Card extends JButton{
-	private ImageIcon card_back_image = new ImageIcon("./Image/card_deck_1/back.png");
+	private static ImageIcon card_back_image = new ImageIcon("./Image/card_deck_1/back.png");
 	private ImageIcon card_front_image;
 	int value;
 	int row;
 	int col;
 	int state; //0 secret 1 show 2 discard 
 
-	
+	static {
+		Image card_back_origin = card_back_image.getImage();
+		Image card_back_resize = card_back_origin.getScaledInstance(PlayPage.GAME_SCREEN_WIDTH/PlayPage.card_col, PlayPage.GAME_SCREEN_HEIGHT/PlayPage.card_row, Image.SCALE_FAST);
+		card_back_image = new ImageIcon(card_back_resize); 
+	}
 	
 	Card(int value, int row, int col){
 		this.value = value;
@@ -251,13 +273,14 @@ class Card extends JButton{
 		
 		this.setContentAreaFilled(false);
 		card_front_image = new ImageIcon("./Image/card_deck_1/("+String.valueOf(value)+").jpg");
+		Image card_front_origin = card_front_image.getImage();
+		Image card_front_resize = card_front_origin.getScaledInstance(PlayPage.GAME_SCREEN_WIDTH/PlayPage.card_col, PlayPage.GAME_SCREEN_HEIGHT/PlayPage.card_row, Image.SCALE_FAST);
+		card_front_image = new ImageIcon(card_front_resize); 
 		
 //		this.addMouseListener(new CardMouseEv());
 		this.addActionListener(new CardActionEv());
 		this.setIcon(card_front_image);
-//		Image card_back_origin = card_back_image.getImage();
-//		Image card_back_resize = card_back_origin.getScaledInstance(PlayPage.GAME_SCREEN_WIDTH/PlayPage.card_col, PlayPage.GAME_SCREEN_HEIGHT/PlayPage.card_row, Image.SCALE_SMOOTH);
-//		
+		
 //		this.setIcon(new ImageIcon(card_back_resize));
 //		this.setContentAreaFilled(true);
 //		this.setBorderPainted(false);
