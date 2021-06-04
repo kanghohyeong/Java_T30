@@ -17,6 +17,7 @@ budu 24 11
 mini 24 11
 baba 24 10
 rcucu 24 10
+sasa 23 11
 didi 23 11
 momo 23 10
 titi 23 10
@@ -28,3 +29,4 @@ duci 19 8
 dodo 18 8
 koku 17 6
 vovo 8 7
+asdf 6 1
