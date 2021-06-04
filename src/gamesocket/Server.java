@@ -32,7 +32,7 @@ class ServerThread extends Thread{
 	}
 	
 	public void run() {
-		System.out.println("service start" + t_name);
+		System.out.println(t_name+ ">>service start" );
 		try {
 			InputStream in = client.getInputStream();
 			DataInputStream dis = new DataInputStream(in);
@@ -43,27 +43,27 @@ class ServerThread extends Thread{
 			
 			synchronized (ServerThread.class) {
 				if(requested_job.equals("echo")) {
-					System.out.println("request : echo");
+					System.out.println(t_name + ">>request : echo");
 					dos.writeUTF("hello");
 					client.close();
 				}
 				else if(requested_job.equals("print")) { //스코어보드 가져오기
-					System.out.println("request : print score board");
+					System.out.println(t_name+">>request : print score board");
 					ScoreHandler sh = new ScoreHandler(dis.readUTF());
 					String score_board = sh.printScoreBoard();
 					dos.writeUTF(score_board);
-					System.out.println("print finish");
+					System.out.println(t_name+">>print finish");
 					client.close();
 				}
 				else if(requested_job.equals("insert")) { //점수 추가하기
-					System.out.println("request : insert score");
+					System.out.println(t_name+">>request : insert score");
 					ScoreHandler sh = new ScoreHandler(dis.readUTF());
 					String[] player_info = dis.readUTF().split(" ");
 					int rank = sh.insertNewScore(player_info[0], Integer.parseInt(player_info[1]), Integer.parseInt(player_info[2]));
 					sh.saveScoreBoard();
 					dos.writeUTF(sh.printScoreBoard());
 					dos.writeUTF(String.valueOf(rank));
-					System.out.println("insert finish");
+					System.out.println(t_name+">>insert finish");
 					client.close();
 				}
 			}

@@ -21,6 +21,7 @@ public class PlayPage extends JPanel{
 	MainBoard game_board;
 	static JPanel board_panel = new JPanel();
 	static JLabel background_panel;
+//	JPanel pause_panel = new JPanel();
 	JLabel game_life;
 	JLabel game_time;
 	JLabel game_remain;
@@ -33,6 +34,7 @@ public class PlayPage extends JPanel{
 	public static volatile int game_state = 0; //0 초기/ 1 카드선택1/ 2 카드선택2/
 	public static Queue<int[]> selected_card_queue = new LinkedList<>(); //카드선택 큐
 	public static Timer refresh_timer;
+	public static Timer game_timer;
 	static int mode;
 	static int level;
 	int time=0;
@@ -57,6 +59,19 @@ public class PlayPage extends JPanel{
 		};
 		background_panel.setBounds(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
 		this.add(background_panel);
+		
+//		JButton pause_button = new JButton("||");
+//		pause_button.setBounds(50, 600, 50, 50);
+//		this.add(pause_button);
+		
+//		pause_panel.setBounds(0,0,Main.SCREEN_WIDTH,Main.SCREEN_HEIGHT);
+//		JButton home_button = new JButton("처음으로");
+//		JButton back_button = new JButton("게임으로");
+//		home_button.setBounds(100, 300, 270, 100);
+//		back_button.setBounds(400,300, 270, 100);
+//		pause_panel.add(home_button);
+//		pause_panel.add(back_button);
+//		this.add(pause_panel);
 		
 		board_panel.setBounds(300, 60, GAME_SCREEN_WIDTH, GAME_SCREEN_HEIGHT);
 		board_panel.setLayout(null);
@@ -99,6 +114,13 @@ public class PlayPage extends JPanel{
 		Main.background_music.changeMusic("action_01", true);
 		
 		//게임 시작
+		ActionListener game_time_checker = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				game_board.setTimeLimit(game_board.getTimeLimit()-1);
+				game_time.setText("시간 : "+ game_board.getTimeLimit());
+			}
+		};
+		game_timer = new Timer(1000, game_time_checker);
 		new GamePlay().start();
 		
 		
@@ -202,13 +224,13 @@ public class PlayPage extends JPanel{
 			// 모든 카드 비공개
 			secretAllCard();
 			//게임 시작
-			ActionListener game_time_checker = new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					game_board.setTimeLimit(game_board.getTimeLimit()-1);
-					game_time.setText("시간 : "+ game_board.getTimeLimit());
-				}
-			};
-			Timer game_timer = new Timer(1000, game_time_checker);
+//			ActionListener game_time_checker = new ActionListener() {
+//				public void actionPerformed(ActionEvent e) {
+//					game_board.setTimeLimit(game_board.getTimeLimit()-1);
+//					game_time.setText("시간 : "+ game_board.getTimeLimit());
+//				}
+//			};
+//			Timer game_timer = new Timer(1000, game_time_checker);
 			game_timer.start();
 			while(!game_board.isFinish()) {
 

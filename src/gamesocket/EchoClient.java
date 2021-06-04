@@ -5,7 +5,7 @@ import java.net.UnknownHostException;
 import java.io.*;
 
 public class EchoClient extends Thread{
-	String serverIP = "localhost";
+	String serverIP = "112.171.248.24";
 	Socket soc;
 	/*
 	 0 ready
