@@ -1,5 +1,7 @@
 package mm;
 
+import java.awt.BorderLayout;
+import java.awt.Graphics;
 import java.awt.Image;
 import javax.swing.*;
 
@@ -16,5 +18,6 @@ public class MainFrame extends JFrame{
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setVisible(true);
 	}
+	
 
 }

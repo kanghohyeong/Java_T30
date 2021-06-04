@@ -1,5 +1,6 @@
 package mm;
 
+import java.awt.BorderLayout;
 import java.awt.event.*;
 
 import javax.swing.Timer;
@@ -34,7 +35,6 @@ public class Main {
 		
 		background_music = new Music("silence_01", true);
 		background_music.start();
-		
 		
 		
 		

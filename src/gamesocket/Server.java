@@ -41,11 +41,33 @@ class ServerThread extends Thread{
 			
 			String requested_job = dis.readUTF();
 			
-			if(requested_job.equals("echo")) {
-				System.out.println("request : echo");
-				dos.writeUTF("hello");
-				client.close();
+			synchronized (ServerThread.class) {
+				if(requested_job.equals("echo")) {
+					System.out.println("request : echo");
+					dos.writeUTF("hello");
+					client.close();
+				}
+				else if(requested_job.equals("print")) { //스코어보드 가져오기
+					System.out.println("request : print score board");
+					ScoreHandler sh = new ScoreHandler(dis.readUTF());
+					String score_board = sh.printScoreBoard();
+					dos.writeUTF(score_board);
+					System.out.println("print finish");
+					client.close();
+				}
+				else if(requested_job.equals("insert")) { //점수 추가하기
+					System.out.println("request : insert score");
+					ScoreHandler sh = new ScoreHandler(dis.readUTF());
+					String[] player_info = dis.readUTF().split(" ");
+					int rank = sh.insertNewScore(player_info[0], Integer.parseInt(player_info[1]), Integer.parseInt(player_info[2]));
+					sh.saveScoreBoard();
+					dos.writeUTF(sh.printScoreBoard());
+					dos.writeUTF(String.valueOf(rank));
+					System.out.println("insert finish");
+					client.close();
+				}
 			}
+			
 		} catch(IOException e) {
 			e.printStackTrace();
 		}

@@ -23,6 +23,7 @@ public class PlayPage extends JPanel{
 	static JLabel background_panel;
 	JLabel game_life;
 	JLabel game_time;
+	JLabel game_remain;
 	static int card_row;
 	static int card_col;
 	Card[][] card_deck;
@@ -32,10 +33,14 @@ public class PlayPage extends JPanel{
 	public static volatile int game_state = 0; //0 초기/ 1 카드선택1/ 2 카드선택2/
 	public static Queue<int[]> selected_card_queue = new LinkedList<>(); //카드선택 큐
 	public static Timer refresh_timer;
-	
+	static int mode;
+	static int level;
 	int time=0;
 	
-	PlayPage(int row, int col, int life, int time_limit){
+	PlayPage(int row, int col, int life, int time_limit,int level, int mode){
+		this.mode= mode;//게임 모드 0 랭킹 1 커스텀
+		this.level = level; 
+		
 		this.setSize(Main.SCREEN_WIDTH,Main.SCREEN_HEIGHT);
 		this.setOpaque(false);
 		this.setLayout(null);
@@ -69,20 +74,26 @@ public class PlayPage extends JPanel{
 		game_board = new MainBoard(row,col, life, time_limit);
 		game_board.randNumber();
 		
-		game_life = new JLabel("life "+String.valueOf(game_board.getLife()));
-		game_life.setBounds(100, 100, 150, 50);
-		Font status_font = new Font("맑은 고딕", Font.ITALIC, 30);
+		game_life = new JLabel("목숨 : "+String.valueOf(game_board.getLife()));
+		game_life.setBounds(100, 100, 200, 50);
+		Font status_font = new Font("HY견명조", Font.PLAIN, 30);
 		game_life.setFont(status_font);
-		game_life.setForeground(Color.RED);
+		game_life.setForeground(new Color(188,38,38));
 		this.add(game_life);
 		
-		game_time = new JLabel();
-		game_time.setBounds(100, 200, 150, 50);
+		game_time = new JLabel("시간 : "+ game_board.getTimeLimit());
+		game_time.setBounds(100, 200, 200, 50);
 		game_time.setFont(status_font);
-		game_time.setForeground(Color.RED);
+		game_time.setForeground(new Color(188,38,38));
 		this.add(game_time);
 		
-		this.setComponentZOrder(background_panel, 3);
+		game_remain = new JLabel("카드 : "+String.valueOf(game_board.getRamainCard()*2));
+		game_remain.setBounds(100, 300, 200, 50);
+		game_remain.setFont(status_font);
+		game_remain.setForeground(new Color(188,38,38));
+		this.add(game_remain);
+		
+		this.setComponentZOrder(background_panel, this.getComponentCount()-1);
 
 		//ㅇ음악
 		Main.background_music.changeMusic("action_01", true);
@@ -191,11 +202,10 @@ public class PlayPage extends JPanel{
 			// 모든 카드 비공개
 			secretAllCard();
 			//게임 시작
-			game_time.setText("Time "+ game_board.getTimeLimit());
 			ActionListener game_time_checker = new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					game_board.setTimeLimit(game_board.getTimeLimit()-1);
-					game_time.setText("Time "+ game_board.getTimeLimit());
+					game_time.setText("시간 : "+ game_board.getTimeLimit());
 				}
 			};
 			Timer game_timer = new Timer(1000, game_time_checker);
@@ -211,7 +221,7 @@ public class PlayPage extends JPanel{
 								e.printStackTrace();
 							}
 							
-							synchronized(this) {
+							synchronized(selected_card_queue) {
 								int[] first_card = selected_card_queue.poll();
 								int[] second_card = selected_card_queue.poll();
 								game_board.selectCard(first_card[0], first_card[1]);
@@ -221,6 +231,7 @@ public class PlayPage extends JPanel{
 									correct_sound.start();
 									discardCard(first_card[0], first_card[1]);
 									discardCard(second_card[0], second_card[1]);
+									game_remain.setText("카드 : "+String.valueOf(game_board.getRamainCard()*2));
 								}
 								else {
 									Music wrong_sound = new Music("wrong",false);
@@ -242,7 +253,7 @@ public class PlayPage extends JPanel{
 			discardAllCard();
 			
 			Main.main_frame.getContentPane().removeAll();
-			Main.main_frame.getContentPane().add(new EndingPage(game_board.getResult()));
+			Main.main_frame.getContentPane().add(new EndingPage(game_board.getResult(),game_board.getLife(),game_board.getTimeLimit(),game_board.getCardRow(),level,mode));
 			Main.main_frame.repaint();
 		}
 	}
@@ -252,7 +263,7 @@ public class PlayPage extends JPanel{
 }
 
 class Card extends JButton{
-	private static ImageIcon card_back_image = new ImageIcon("./Image/card_deck_1/back.png");
+	private static ImageIcon card_back_image = new ImageIcon("./Image/card_deck_1/back.jpg");
 	private ImageIcon card_front_image;
 	int value;
 	int row;

@@ -9,11 +9,13 @@ public class MainBoard {
 	int life;
 	int time_limit;
 	int row,col;
+	int remain_card;
 	boolean result; //true win / false lose
 	
 	public MainBoard(int row, int col, int life, int time_limit){
 		this.row = row;
 		this.col = col;
+		this.remain_card = row*col/2;
 		this.life = life;
 		this.time_limit = time_limit;
 		this.arr = new int[row*col];
@@ -77,6 +79,7 @@ public class MainBoard {
 			secret[r2][c2] = 0;
 			return false;
 		}
+		remain_card--;
 		return true;
 	}
 	
@@ -94,5 +97,11 @@ public class MainBoard {
 	}
 	public void setTimeLimit(int time) {
 		this.time_limit = time;
+	}
+	public int getCardRow() {
+		return this.row;
+	}
+	public int getRamainCard() {
+		return this.remain_card;
 	}
 }
